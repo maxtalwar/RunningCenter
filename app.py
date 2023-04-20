@@ -5,7 +5,7 @@ from models import *
 app = Flask(__name__)
 
 # TODO: Change the secret key
-app.secret_key = "Change Me"
+app.secret_key = "LInPyX4PpZx6hAHofg=="
 
 # TODO: Fill in methods and routes
 
