@@ -2,30 +2,30 @@
 <html>
 <head>
 	<title>Sign Up Page</title>
-	<link rel="stylesheet" href="static/styles/styles.css">
+	<link rel="stylesheet" href="{{url_for('static', filename='styles/style.css')}}">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
 
 	<nav class="navbar navbar-expand-lg navbar-light bg-color">
 	  <a class="navbar-brand" href="#">
-	    <img src="static/assets/logo.png" width="113" height="98" alt="Logo">
+	    <img src="{{url_for('static', filename='assets/logo.png')}}" width="113" height="98" alt="Logo">
 	  </a>
 	  <ul class="navbar-nav mr-auto">
 	    <li class="nav-item">
-	      <a class="nav-link" href="threads.html">Threads</a>
+	      <a class="nav-link" href="templates/threads.html">Threads</a>
 	    </li>
 	    <li class="nav-item">
-	      <a class="nav-link" href="calendar.html">Calendar</a>
+	      <a class="nav-link" href="templates/calendar.html">Calendar</a>
 	    </li>
 	  </ul>
 	  <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
 	    <ul class="navbar-nav">
 	      <li class="nav-item">
-	        <a class="nav-link" href="login.html">Log In</a>
+	        <a class="nav-link" href="{{ url_for('login') }}">Log In</a>
 	      </li>
 	      <li class="nav-item">
-	        <a class="nav-link" href="signup.html">Sign Up</a>
+	        <a class="nav-link" href="{{ url_for('signup') }}">Sign Up</a>
 	      </li>
 	    </ul>
 	  </div>
@@ -34,26 +34,27 @@
 	<div class="container-fluid">
 		<div class="row justify-content-between align-items-center signup-container">
 			<div class="col-md-6 col-sm-8 col-xs-12 form-col">
-				<form class="form-container">
+				<form class="form-container" method="POST" action="{{ url_for('signup') }}">
 					<h3 class="text-center mb-4">Sign Up</h3>
 					<div class="form-group">
-						<input type="text" class="form-control" placeholder="Username">
+						<input type="text" class="form-control" name="username" placeholder="Username" required>
 					</div>
 					<div class="form-group">
-						<input type="email" class="form-control" placeholder="Email">
+						<input type="email" class="form-control" name="email" placeholder="Email" required>
 					</div>
 					<div class="form-group">
-						<input type="password" class="form-control" placeholder="Password">
+						<input type="password" class="form-control" name="password" placeholder="Password" required>
 					</div>
 					<div class="form-group">
-						<input type="password" class="form-control" placeholder="Confirm Password">
+						<input type="password" class="form-control" name="confirm_password" placeholder="Confirm Password" required>
 					</div>
 					<button type="submit" class="btn btn-primary btn-block">Sign Up</button>
-					<p class="text-center mt-2">Already have an account? <a href="login.html">Log in</a></p>
+					<p class="text-center mt-2">Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
 				</form>
+				
 			</div>
 			<div class="col-md-6 col-sm-4 col-xs-12 text-center">
-				<img src="static/assets/running1.png" alt="Running Image">
+				<img src="../static/assets/running1.png" alt="Running Image">
 			</div>
 		</div>
 	</div>
