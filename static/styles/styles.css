@@ -1,0 +1,112 @@
+body {
+	background-color: #fff;
+}
+
+.form-container {
+	background-color: #fff;
+	border-radius: 10px;
+	padding: 20px;
+	box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.1);
+	max-width: 500px; /* added max-width property */
+	margin: 0 auto; /* added margin property to center the form container */
+}
+
+.form-control {
+	border-radius: 20px;
+	font-size: 18px;
+}
+
+.btn-primary {
+	background-color: #007bff;
+	border: none;
+	border-radius: 20px;
+	font-size: 18px;
+}
+
+.btn-primary:hover {
+	background-color: #0069d9;
+}
+
+/* signup */
+.signup-container {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    margin-top: -150px;
+}
+.signup-container img {
+    width: 598px;
+    height: 644px;
+    margin-right: 200px;
+}
+.signup-container .form-col {
+    flex: 1;
+    padding: 0 20px;
+}
+
+/* login */
+.login-container {
+	height: 100vh;
+	display: flex;
+	align-items: center;
+	margin-top: -100px; /* add a negative margin */
+}
+
+.login-container img {
+	width: 598px;
+	height: 644px;
+	margin-left: -200px;
+}
+
+.login-container .form-col {
+	flex: 1;
+	padding: 0 20px;
+}
+
+/* navbar */
+.navbar {
+	background-color: #7EA2AA;
+}
+
+.container-fluid {
+	margin-top: 20px;
+}
+
+.navbar-nav .nav-link {
+    font-size: 1.5rem;
+    padding: 0.5rem;
+    margin-right: 25px;
+}
+
+/* profile page */
+.profile-link .nav-link {
+    margin-right: 75px;
+}
+
+.profile-img {
+	margin-bottom: 1rem;
+}
+  
+.profile-bio h3 {
+	margin-top: 1rem;
+	margin-bottom: 0;
+}
+
+.profile-bio p {
+	margin-top: 0.5rem;
+}
+
+.profile-comments {
+	margin-top: 1rem;
+}
+
+.profile-comments ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.profile-comments ul li {
+	margin-bottom: 0.5rem;
+}
+  
