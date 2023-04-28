@@ -13,18 +13,17 @@
                     <img src="{{ url_for('static', filename='assets/profile_photo.jpeg') }}" alt="Profile Photo" class="img-fluid rounded-circle">
                 </div>
                 <div class="profile-bio">
-                    <h3>Username</h3>
-                    <p>Bio text goes here...</p>
+                    <h3>{{username}}</h3>
+                    <!--<p>Bio text goes here...</p>  That is a stretch goal because it would require a separate page for the user to input more info about themselves-->
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="profile-comments">
                     <h4>Past Comments</h4>
                     <ul>
-                        <li>Comment 1</li>
-                        <li>Comment 2</li>
-                        <li>Comment 3</li>
-                        <li>Comment 4</li>
+                        {% for comment in comments %}
+                            <li>{{ comment[0] }}</li>
+                        {% endfor %}
                     </ul>
                 </div>
             </div>

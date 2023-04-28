@@ -27,6 +27,12 @@ body {
 	background-color: #0069d9;
 }
 
+.custom-alert {
+    background-color: #7EA2AA;
+    color: #ffffff;
+    border: none;
+}
+
 /* signup */
 .signup-container {
     height: 100vh;

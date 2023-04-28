@@ -12,6 +12,9 @@ def home():
 
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
+    if "username" in session:
+        return redirect(url_for("profile"))
+
     if request.method == "GET":
         return render_template("signup.html")
     elif request.method == "POST":
@@ -24,10 +27,10 @@ def signup():
         username_exists = db_session.query(User.username).filter(User.username == username).first() is not None
 
         if password != confirm_password:
-            flash("Passwords do not match", "error")
+            flash("Passwords do not match.", "error")
             return render_template("signup.html")
         elif email_exists:
-            flash("email already taken", "error")
+            flash("Email already taken.", "error")
             return render_template("signup.html")
         elif username_exists:
             flash("username already taken", "error")
@@ -43,6 +46,9 @@ def signup():
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
+    if "username" in session:
+        return redirect(url_for("profile"))
+
     if request.method == "GET":
         return render_template("login.html")
     if request.method == "POST":
@@ -57,14 +63,21 @@ def login():
 
             return redirect(url_for("profile"))
         else:
-            flash("incorrect username or password", "error")
+            flash("Incorrect username or password.", "error")
             print(password)
             print(correct_user_password)
             return render_template("login.html")
         
 @app.route("/profile")
 def profile():
-    return render_template("profile.html")
+    if "username" not in session:
+        return redirect(url_for("login"))
+    
+    username = session["username"]
+    user = db_session.query(User).filter(User.username == username).first()
+    comments = db_session.query(Review.review_text).filter(Review.user_id == user.id).all()
+
+    return render_template("profile.html", username = user.username, comments=comments)
 
 @app.route("/calendar")
 def calendar():
@@ -76,6 +89,11 @@ def logout():
         session.pop("username")
         flash("You've been logged out", "info")
     return redirect(url_for("login"))
+
+@app.route('/race/<race_id>')
+def race_page(race_id):
+    return render_template('race_page.html', race_id=race_id)
+
     
 
 if __name__ == "__main__":

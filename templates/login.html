@@ -34,8 +34,30 @@
 	<div class="container-fluid">
 		<div class="row justify-content-between align-items-center login-container">
 			<div class="col-md-6 col-sm-8 col-xs-12 form-col">
+
+
 				<form class="form-container" method="POST">
 					<h3 class="text-center mb-4">Log In</h3>
+					
+					{% with messages = get_flashed_messages(with_categories=true) %}
+						{% if messages %}
+							<div class="container">
+								<div class="row">
+									<div class="col-md-12">
+										{% for category, message in messages %}
+											<div class="alert custom-alert alert-dismissible fade show" role="alert">
+												{{ message }}
+												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+													<span aria-hidden="true">&times;</span>
+												</button>
+											</div>
+										{% endfor %}
+									</div>
+								</div>
+							</div>
+						{% endif %}
+					{% endwith %}
+
 					<div class="form-group">
 						<input type="text" class="form-control" name="username" placeholder="Username">
 					</div>
