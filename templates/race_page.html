@@ -2,26 +2,44 @@
 {% block title %}Race Details{% endblock %}
 {% block content %}
 <head>
-	<title>Race Details</title>
+    <title>Race Details</title>
 </head>
 <body>
-	<div class="container">
-		<h2 class="text-center mt-4 mb-4">Boston Marathon</h2>
-		<h5 class="text-center mb-4">Average Rating: 4.5</h5>
-		<div class="row justify-content-center">
-			<div class="col-md-6">
-				<div class="form-group">
-					<label for="comment">Comment:</label>
-					<textarea class="form-control" rows="5" id="comment"></textarea>
-				</div>
-				<button type="submit" class="btn btn-primary">Submit</button>
-			</div>
-		</div>
-	</div>
+    <div class="container">
+        <h2 class="text-center mt-4 mb-4">{{race_name}}</h2>
+        <h5 class="text-center mb-4">Average Rating: {{average_rating}}</h5>
+        <div class="row">
+            <div class="col-md-6">
+                <h4 class="mb-4">Current Reviews</h4>
+                <ul class="list-group">
+                    {% for comment in comments %}
+                        <li class="list-group-item">{{ comment }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <form action="{{ url_for('submit_review', race_id=race_id) }}" method="POST">
+                    <label for="rating">Rating (1-10):</label>
+                    <select class="form-control" name="rating" id="rating" required>
+                        <option value="">Select a rating</option>
+                        {% for i in range(1, 11) %}
+                            <option value="{{ i }}">{{ i }}</option>
+                        {% endfor %}
+                    </select>
 
-	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+                    <div class="form-group">
+                        <label for="comment">Comment:</label>
+                        <textarea class="form-control" rows="5" id="comment" name="comment"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 </body>
 {% endblock %}

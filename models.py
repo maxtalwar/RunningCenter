@@ -50,8 +50,9 @@ class Review(Base):
     race = relationship("Race", back_populates="reviews")
 
     # constructor
-    def __init__(self, user_id, rating, review_date, review_text):
+    def __init__(self, user_id, race_id, rating, review_date, review_text):
         self.user_id = user_id
+        self.race_id = race_id
         self.rating = rating
         self.review_date = review_date
         self.review_text = review_text
@@ -62,7 +63,8 @@ class Race(Base):
     # columns
     id = Column("id", INTEGER, primary_key=True)
     race_name = Column("race_name", TEXT, nullable=False)
-    race_location = Column("race_location", TEXT, nullable=False)
+    race_city = Column("race_city", TEXT, nullable=False)
+    race_state = Column("race_state", TEXT, nullable=False)
     race_date = Column("race_date", TEXT, nullable=False)
     race_distance = Column("race_distance", TEXT, nullable=False)
     race_website = Column("race_website", TEXT, nullable=True)
@@ -72,9 +74,10 @@ class Race(Base):
     reviews = relationship("Review", back_populates="race")
 
     # constructor
-    def __init__(self, race_name, race_location, race_date, race_distance, race_website, race_description):
+    def __init__(self, race_name, race_city, race_state, race_date, race_distance, race_website, race_description):
         self.race_name = race_name
-        self.race_location = race_location
+        self.race_city = race_city
+        self.race_state = race_state
         self.race_date = race_date
         self.race_distance = race_distance
         self.race_website = race_website

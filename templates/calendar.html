@@ -1,62 +1,34 @@
 {% extends "base.html" %}
-{% block title %}Calendar{% endblock %}
+{% block title %}Race Calendar{% endblock %}
 {% block content %}
-<!DOCTYPE html>
-<html>
 <head>
-	<title>Race Calendar</title>
-	<link rel="stylesheet" href="static/styles/styles.css">
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Race Calendar</title>
 </head>
 <body>
-	<div class="container-fluid">
-		<h3 class="text-center mb-4">Race Calendar</h3>
-		<div class="row">
-			<div class="col-md-12 col-sm-12 col-xs-12 form-col">
-				<table class="table">
-					<thead>
-						<tr>
-							<th scope="col">Race Name</th>
-							<th scope="col">City</th>
-							<th scope="col">State</th>
-							<th scope="col">Average Rating</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td>Boston Marathon</td>
-							<td>Boston</td>
-							<td>MA</td>
-							<td>4.5</td>
-						</tr>
-						<tr>
-							<td>Chicago Marathon</td>
-							<td>Chicago</td>
-							<td>IL</td>
-							<td>4.2</td>
-						</tr>
-						<tr>
-							<td>Los Angeles Marathon</td>
-							<td>Los Angeles</td>
-							<td>CA</td>
-							<td>3.8</td>
-						</tr>
-						<tr>
-							<td>New York City Marathon</td>
-							<td>New York</td>
-							<td>NY</td>
-							<td>4.6</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-		</div>
-	</div>
-
-	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
+    <div class="container">
+        <h2 class="text-center mt-4 mb-4">Race Calendar</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Race Name</th>
+                    <th>Location</th>
+                    <th>Date</th>
+                    <th>Distance</th>
+                    <th>Average Rating</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for race in races %}
+                    <tr>
+                        <td><a href="{{ url_for('race_page', race_id=race.id) }}">{{ race.race_name }}</a></td>
+                        <td>{{ race.race_city }}, {{ race.race_state }}</td>
+                        <td>{{ race.race_date }}</td>
+                        <td>{{ race.race_distance }}</td>
+                        <td>{{ race.average_rating }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </body>
-</html>
 {% endblock %}

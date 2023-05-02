@@ -1,6 +1,8 @@
 from flask import *
 from database import init_db, db_session
 from models import *
+from datetime import datetime
+from sqlalchemy import func
 
 app = Flask(__name__)
 
@@ -75,13 +77,39 @@ def profile():
     
     username = session["username"]
     user = db_session.query(User).filter(User.username == username).first()
-    comments = db_session.query(Review.review_text).filter(Review.user_id == user.id).all()
+
+    # if the username field is in the session data but the username doesn't exist in the actual database, this redirects the user back to the login page.
+    # this is a security measure to prevent against someone setting the session username to some random value and then behind able to act as if they are logged in
+    if user is None:
+        flash("User not found. Please log in again.", "warning")
+        session.pop("username", None)
+        return redirect(url_for("login"))
+
+    reviews = db_session.query(Race.race_name, Review.review_text).filter(Review.user_id == user.id).join(Race, Review.race_id == Race.id).all()
+
+    comments = []
+
+    for race_name, review_text in reviews:
+        comments.append(f"{race_name}: {review_text}")
 
     return render_template("profile.html", username = user.username, comments=comments)
 
 @app.route("/calendar")
 def calendar():
-    return render_template("calendar.html")
+    races = db_session.query(Race).all()
+    race_data = []
+    
+    for race in races:
+        reviews = db_session.query(Review).filter(Review.race_id == race.id).all()
+
+        if len(reviews) > 0:
+            average_rating = round(sum([review.rating for review in reviews])/len(reviews), 2)
+        else:
+            average_rating = "n/a"
+
+        race.average_rating = average_rating
+
+    return render_template("calendar.html", races=races)
         
 @app.route("/logout")
 def logout():
@@ -90,11 +118,39 @@ def logout():
         flash("You've been logged out", "info")
     return redirect(url_for("login"))
 
-@app.route('/race/<race_id>')
+@app.route('/race/<race_id>', methods=["GET", "POST"])
 def race_page(race_id):
-    return render_template('race_page.html', race_id=race_id)
+    race = db_session.query(Race).filter(Race.id == race_id).first()
+    race_name = race.race_name
+    reviews = db_session.query(Review).filter(Review.race_id == race.id).all()
+    comments = [review.review_text for review in reviews]
 
-    
+    if len(reviews) > 0:
+        average_rating = round(sum([review.rating for review in reviews])/len(reviews), 2)
+    else:
+        average_rating = "n/a"
+
+    return render_template('race_page.html', race_id=race_id, race_name=race_name, average_rating=average_rating, comments=comments)
+
+@app.route('/race/<int:race_id>/submit_review', methods=["POST"])
+def submit_review(race_id):
+    if request.method == "POST":
+        print("debug 1")
+        rating = request.form['rating']
+        comment = request.form['comment']
+        username = session.get("username")
+        user_id = db_session.query(User.id).filter(User.username == username).first()[0]
+
+        if username:
+            print("debug 2")
+            review = Review(user_id=user_id, race_id=race_id, rating=rating, review_date=datetime.today().strftime('%d-%d-%Y'), review_text=comment)
+
+            db_session.add(review)
+            db_session.commit()
+        else:
+            flash("You must be logged in to leave a review!")
+
+    return redirect(url_for('race_page', race_id=race_id))
 
 if __name__ == "__main__":
     init_db()
