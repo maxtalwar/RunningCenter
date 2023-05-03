@@ -4,7 +4,7 @@ that will be used to create objects
 and connect to data tables.
 """
 
-from sqlalchemy import ForeignKey, Column, INTEGER, TEXT
+from sqlalchemy import ForeignKey, Column, INTEGER, TEXT, DATE
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -20,16 +20,18 @@ class User(Base):
     # stretch goals
     first_name = Column("first_name", TEXT, nullable=True)
     last_name = Column("last_name", TEXT, nullable=True)
+    bio = Column("bio", TEXT, nullable=True)
     profile_pic = Column("profile_pic", TEXT, nullable=False)
 
     # relationships
     reviews = relationship("Review", back_populates="user")
 
     # constructor
-    def __init__(self, username, email, password, first_name="", last_name="", profile_pic="static/assets/profile_photo.png"):
+    def __init__(self, username, email, password, bio="", first_name="", last_name="", profile_pic="static/assets/profile_photo.png"):
         self.username = username
         self.email = email
         self.password = password
+        self.bio = bio
         self.first_name = first_name
         self.last_name = last_name
         self.profile_pic = profile_pic
@@ -42,7 +44,7 @@ class Review(Base):
     user_id = Column("user_id", ForeignKey("users.id"), nullable=False)
     race_id = Column("race_id", ForeignKey("races.id"), nullable=False)
     rating = Column("rating", INTEGER, nullable=False)
-    review_date = Column("review_date", TEXT, nullable=False)
+    review_date = Column("review_date", DATE, nullable=False)
     review_text = Column("review_text", TEXT, nullable=True)
 
     # relationships
@@ -65,7 +67,7 @@ class Race(Base):
     race_name = Column("race_name", TEXT, nullable=False)
     race_city = Column("race_city", TEXT, nullable=False)
     race_state = Column("race_state", TEXT, nullable=False)
-    race_date = Column("race_date", TEXT, nullable=False)
+    race_date = Column("race_date", DATE, nullable=False)
     race_distance = Column("race_distance", TEXT, nullable=False)
     race_website = Column("race_website", TEXT, nullable=True)
     race_description = Column("race_description", TEXT, nullable=True)

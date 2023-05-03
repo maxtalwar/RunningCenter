@@ -1,6 +1,7 @@
 from flask import *
 from database import init_db, db_session
 from models import *
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -45,7 +46,8 @@ def add_default_races():
     ]
 
     for race in default_races:
-        store_race(*race)
+        race_date = datetime.strptime(race[3], "%m/%d/%y").date()
+        store_race(race[0], race[1], race[2], race_date, race[4], race[5], race[6])
 
     print("Default races have been added.")
 

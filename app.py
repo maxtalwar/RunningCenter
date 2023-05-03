@@ -58,7 +58,6 @@ def login():
         password = request.form["password"]
 
         correct_user_password = db_session.query(User.password).filter(User.username == username).first()[0]
-        print("debug")
 
         if password == correct_user_password:
             session["username"] = username
@@ -97,7 +96,6 @@ def profile():
 @app.route("/calendar")
 def calendar():
     races = db_session.query(Race).all()
-    race_data = []
     
     for race in races:
         reviews = db_session.query(Review).filter(Review.race_id == race.id).all()
@@ -135,22 +133,38 @@ def race_page(race_id):
 @app.route('/race/<int:race_id>/submit_review', methods=["POST"])
 def submit_review(race_id):
     if request.method == "POST":
-        print("debug 1")
         rating = request.form['rating']
         comment = request.form['comment']
         username = session.get("username")
-        user_id = db_session.query(User.id).filter(User.username == username).first()[0]
 
         if username:
-            print("debug 2")
-            review = Review(user_id=user_id, race_id=race_id, rating=rating, review_date=datetime.today().strftime('%d-%d-%Y'), review_text=comment)
+            user_id = db_session.query(User.id).filter(User.username == username).first()[0]
+            review_date = datetime.today().date()
+            review = Review(user_id=user_id, race_id=race_id, rating=rating, review_date=review_date, review_text=comment)
 
             db_session.add(review)
             db_session.commit()
         else:
             flash("You must be logged in to leave a review!")
+            return redirect(url_for('signup'))
 
     return redirect(url_for('race_page', race_id=race_id))
+
+@app.route('/edit_profile', methods=["GET", "POST"])
+def edit_profile():
+    return render_template('edit_profile.html')
+
+@app.route('/save_profile_changes', methods=["POST"])
+def save_profile_changes():
+    if request.method == "POST":
+        username = session.get("username")
+        user = db_session.query(User).filter(User.username == username).first()
+
+        altered_bio = request.form['bio']
+        user.bio = altered_bio
+        db_session.commit()
+
+    return redirect(url_for('profile'))
 
 if __name__ == "__main__":
     init_db()
