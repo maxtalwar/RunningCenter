@@ -57,17 +57,16 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
 
-        correct_user_password = db_session.query(User.password).filter(User.username == username).first()[0]
+        correct_user_password = db_session.query(User.password).filter(User.username == username).first()
 
-        if password == correct_user_password:
-            session["username"] = username
+        if correct_user_password != None:
+            if password == correct_user_password[0]:
+                session["username"] = username
 
-            return redirect(url_for("profile"))
-        else:
-            flash("Incorrect username or password.", "error")
-            print(password)
-            print(correct_user_password)
-            return render_template("login.html")
+                return redirect(url_for("profile"))
+    
+    flash("Incorrect username or password.", "error")
+    return render_template("login.html")
         
 @app.route("/profile")
 def profile():
