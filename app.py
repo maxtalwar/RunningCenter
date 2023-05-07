@@ -8,26 +8,35 @@ app = Flask(__name__)
 
 app.secret_key = "LInPyX4PpZx6hAHofg=="
 
+# redirects to the login page if no path is specified in the URL
 @app.route('/', methods=["GET", "POST"])
 def home():
     return redirect(url_for("login"))
 
+# logic for signup page
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
+    # if the user is already logged in, redirect them
     if "username" in session:
         return redirect(url_for("profile"))
 
+    # if the user is just trying to see the page, render the basic template for the page without any logic
     if request.method == "GET":
         return render_template("signup.html")
     elif request.method == "POST":
+        # if the user sends a POST request to the server, handle the signup logic
+
+        # parse request form data
         username = request.form["username"]
         email = request.form["email"]
         password = request.form["password"]
         confirm_password = request.form["confirm_password"]
 
+        # pull data from database
         email_exists = db_session.query(User.email).filter(User.email == email).first() is not None
         username_exists = db_session.query(User.username).filter(User.username == username).first() is not None
 
+        # run checks against database
         if password != confirm_password:
             flash("Passwords do not match.", "error")
             return render_template("signup.html")
@@ -38,14 +47,17 @@ def signup():
             flash("username already taken", "error")
             return render_template("signup.html")
         else:
+            # if all checks are passed, create a new user and add it to the database session
             user = User(username=username, email=email, password=password)
             db_session.add(user)
             db_session.commit()
 
-            session["username"] = username
+            session["username"] = username # TODO: consider getting rid of this as a security thing in order to make users login after signup
 
+            # redirect users to the login page
             return redirect(url_for("login"))
 
+# logic for login page
 @app.route('/login', methods=["GET", "POST"])
 def login():
     if "username" in session:
