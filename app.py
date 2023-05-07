@@ -92,18 +92,27 @@ def login():
     # if it ultimately fails to pass the checks throw an error and redirect back to the login page
     flash("Incorrect username or password.", "error")
     return render_template("login.html")
-        
-@app.route("/profile")
-def profile():
-    # redirect to the login page if not logged in
-    if "username" not in session:
-        return redirect(url_for("login"))
+
+@app.route("/profile", defaults={"username": None})
+@app.route("/profile/<username>")
+def profile(username):
+    logged_in_user = None
+
+    if "username" in session:
+        logged_in_user = session["username"]
     
-    # get the current username, generate a user object from the username
-    username = session["username"]
+    # use the logged in user's username if the user doesn't specify a username in the url
+    # redirect them to the login page if they're not logged in (meaning there is no session username)
+    if not username:
+        if logged_in_user == None:
+            return redirect(url_for("login"))
+            
+        username = logged_in_user
+    
+    # get the current username, generate a user object from the given username
     user = db_session.query(User).filter(User.username == username).first()
 
-    # if the username field is in the session data but the username doesn't exist in the actual database, this redirects the user back to the login page.
+    # if the username isn't in the database, redirect the user back to the login page.
     if user is None:
         flash("User not found. Please log in again.", "warning")
         session.pop("username", None)
@@ -118,7 +127,7 @@ def profile():
     for race_name, review_text in reviews:
         comments.append(f"{race_name}: {review_text}")
 
-    return render_template("profile.html", username = username, comments = comments, user = user)
+    return render_template("profile.html", comments = comments, user = user, logged_in_user = logged_in_user)
 
 @app.route("/calendar")
 def calendar():
@@ -158,13 +167,14 @@ def race_page(race_id):
     race = db_session.query(Race).filter(Race.id == race_id).first()
     race_name = race.race_name
 
-    # get reviews that correspond to a given race
-    reviews = db_session.query(Review).filter(Review.race_id == race.id).all()
-    comments = [review.review_text for review in reviews]
+    text_reviews = (db_session.query(User, Review).filter(Review.race_id == race.id).join(User, Review.user_id == User.id).all())
+    comments = [f"{user.username}: {review.review_text}" for user, review in text_reviews]
+
+    numerical_reviews = db_session.query(Review).filter(Review.race_id == race.id).all()
 
     # calculate the average race rating if there are ratings for a given race
-    if len(reviews) > 0:
-        average_rating = round(sum([review.rating for review in reviews])/len(reviews), 2)
+    if len(numerical_reviews) > 0:
+        average_rating = round(sum([review.rating for review in numerical_reviews])/len(numerical_reviews), 2)
     else:
         average_rating = "n/a"
 
@@ -178,7 +188,7 @@ def submit_review(race_id):
         rating = request.form['rating']
         comment = request.form['comment']
 
-        # get the current logged in user
+        # get the current logged in user, create a review text with the username at the front
         username = session.get("username")
 
         # check that the user is logged in, and if they're not redirect them to the singup page
