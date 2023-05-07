@@ -4,9 +4,11 @@ from models import *
 from datetime import datetime
 from sqlalchemy import func
 
+# note: ChatGPT did all the frontends for this page (html, css, jinja, etc) and I did all the backend stuff
+
 app = Flask(__name__)
 
-app.secret_key = "LInPyX4PpZx6hAHofg=="
+app.secret_key = "LInPyX4PpZx6hAHofg==" # TODO: not very secure, fix later
 
 # redirects to the login page if no path is specified in the URL
 @app.route('/', methods=["GET", "POST"])
@@ -37,17 +39,21 @@ def signup():
         username_exists = db_session.query(User.username).filter(User.username == username).first() is not None
 
         # run checks against database
+
+        # flask incorrect password error if password incorrect
         if password != confirm_password:
             flash("Passwords do not match.", "error")
             return render_template("signup.html")
+        # flash email already taken error if the email exists in the databse
         elif email_exists:
             flash("Email already taken.", "error")
             return render_template("signup.html")
+        # flash username taken error if the username is taken
         elif username_exists:
             flash("username already taken", "error")
             return render_template("signup.html")
+        # if all checks are passed, create a new user and add it to the database session
         else:
-            # if all checks are passed, create a new user and add it to the database session
             user = User(username=username, email=email, password=password)
             db_session.add(user)
             db_session.commit()
@@ -60,57 +66,73 @@ def signup():
 # logic for login page
 @app.route('/login', methods=["GET", "POST"])
 def login():
+    # redirect user if they're already logged in
     if "username" in session:
         return redirect(url_for("profile"))
 
+    # just render the page if the user isn't submitting data
     if request.method == "GET":
         return render_template("login.html")
+    # handle login logic if the user is submitting data
     if request.method == "POST":
+        # parse request form data
         username = request.form["username"]
         password = request.form["password"]
 
+        # pull correct user password from database
         correct_user_password = db_session.query(User.password).filter(User.username == username).first()
 
+        # check that the user entered a username in the database (and therefore that the correct corresponding password != None)
         if correct_user_password != None:
+            # check that the given password is correct
             if password == correct_user_password[0]:
+                # log the user in, redirect to the profile page
                 session["username"] = username
 
                 return redirect(url_for("profile"))
     
+    # if it ultimately fails to pass the checks throw an error and redirect back to the login page
     flash("Incorrect username or password.", "error")
     return render_template("login.html")
         
 @app.route("/profile")
 def profile():
+    # redirect to the login page if not logged in
     if "username" not in session:
         return redirect(url_for("login"))
     
+    # get the current username, generate a user object from the username
     username = session["username"]
     user = db_session.query(User).filter(User.username == username).first()
 
     # if the username field is in the session data but the username doesn't exist in the actual database, this redirects the user back to the login page.
-    # this is a security measure to prevent against someone setting the session username to some random value and then behind able to act as if they are logged in
     if user is None:
         flash("User not found. Please log in again.", "warning")
         session.pop("username", None)
         return redirect(url_for("login"))
 
+    # get all reviews that a user left
     reviews = db_session.query(Race.race_name, Review.review_text).filter(Review.user_id == user.id).join(Race, Review.race_id == Race.id).all()
 
+    # fill a list with strings of all the reviews and pass it to the frontend
     comments = []
 
     for race_name, review_text in reviews:
         comments.append(f"{race_name}: {review_text}")
 
-    return render_template("profile.html", username = user.username, comments=comments)
+    return render_template("profile.html", username = username, comments = comments, user = user)
 
 @app.route("/calendar")
 def calendar():
+    # get all upcoming races
     races = db_session.query(Race).all()
     
+    # calculate the average rating for each of the upcoming races, update each race object with their average rating
     for race in races:
         reviews = db_session.query(Review).filter(Review.race_id == race.id).all()
 
+        # if reviews exist for a race, do math
+        # otherwise don't do math
         if len(reviews) > 0:
             average_rating = round(sum([review.rating for review in reviews])/len(reviews), 2)
         else:
@@ -118,63 +140,84 @@ def calendar():
 
         race.average_rating = average_rating
 
+    # pass the updated race objects to the calendar page
     return render_template("calendar.html", races=races)
         
 @app.route("/logout")
 def logout():
+    # checks if a user is logged in
     if "username" in session:
+        # remove username from session, flash a logged out error
         session.pop("username")
         flash("You've been logged out", "info")
+
+    # redirect to login page
     return redirect(url_for("login"))
 
 @app.route('/race/<race_id>', methods=["GET", "POST"])
 def race_page(race_id):
+    # get data about a race that corresponds to a given race id
     race = db_session.query(Race).filter(Race.id == race_id).first()
     race_name = race.race_name
+
+    # get reviews that correspond to a given race
     reviews = db_session.query(Review).filter(Review.race_id == race.id).all()
     comments = [review.review_text for review in reviews]
 
+    # more math if ratings for a race exist
     if len(reviews) > 0:
         average_rating = round(sum([review.rating for review in reviews])/len(reviews), 2)
     else:
         average_rating = "n/a"
 
+    # render the race page with the calculated data
     return render_template('race_page.html', race_id=race_id, race_name=race_name, average_rating=average_rating, comments=comments)
 
 @app.route('/race/<int:race_id>/submit_review', methods=["POST"])
 def submit_review(race_id):
     if request.method == "POST":
+        # get info from the request form about the review
         rating = request.form['rating']
         comment = request.form['comment']
+
+        # get the current logged in user
         username = session.get("username")
 
+        # check that the user is logged in, and if they're not redirect them to the singup page
         if username:
+            # generate a review object based on the retrieved info about the user
             user_id = db_session.query(User.id).filter(User.username == username).first()[0]
             review_date = datetime.today().date()
             review = Review(user_id=user_id, race_id=race_id, rating=rating, review_date=review_date, review_text=comment)
 
+            # store the review in the reviews database
             db_session.add(review)
             db_session.commit()
         else:
             flash("You must be logged in to leave a review!")
             return redirect(url_for('signup'))
 
+    # return to the race page
     return redirect(url_for('race_page', race_id=race_id))
 
 @app.route('/edit_profile', methods=["GET", "POST"])
 def edit_profile():
+    # go to the profile editor page
     return render_template('edit_profile.html')
 
 @app.route('/save_profile_changes', methods=["POST"])
 def save_profile_changes():
     if request.method == "POST":
+        # figure out who is logged in
         username = session.get("username")
         user = db_session.query(User).filter(User.username == username).first()
 
+        # change the user's bio based on the info that they give, save the changed user to the database
         altered_bio = request.form['bio']
         user.bio = altered_bio
         db_session.commit()
 
+    # go back to the profile page
     return redirect(url_for('profile'))
 
 if __name__ == "__main__":

@@ -14,7 +14,7 @@
                 </div>
                 <div class="profile-bio">
                     <h3>{{username}}</h3>
-                    <!--<p>Bio text goes here...</p>  That is a stretch goal because it would require a separate page for the user to input more info about themselves-->
+                    <p>{{ user.bio }}</p>
                 </div>
                 <div class="edit-profile-button">
                     <a href="{{ url_for('edit_profile') }}" class="btn btn-primary mt-3">Edit Profile</a>
