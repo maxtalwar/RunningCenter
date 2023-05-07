@@ -4,8 +4,6 @@ from models import *
 from datetime import datetime
 from sqlalchemy import func
 
-# note: ChatGPT did all the frontends for this page (html, css, jinja, etc) and I did all the backend stuff
-
 app = Flask(__name__)
 
 app.secret_key = "LInPyX4PpZx6hAHofg==" # TODO: not very secure, fix later
