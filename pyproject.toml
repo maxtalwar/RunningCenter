@@ -8,6 +8,7 @@ authors = ["0xphoton <42502920+maxtalwar@users.noreply.github.com>"]
 python = "^3.9"
 flask = "^2.3.2"
 sqlalchemy = "^2.0.12"
+requests = "^2.30.0"
 
 [tool.poetry.dev-dependencies]
 
