@@ -7,6 +7,7 @@ app = Flask(__name__)
 
 app.secret_key = "LInPyX4PpZx6hAHofg=="
 
+# take info about a race and store a corresponding race object into the database
 def store_race(race_name, race_city, race_state, race_date, race_distance, race_website="", race_description=""):
     race = Race(race_name=race_name, race_city=race_city, race_state=race_state, race_date=race_date, race_distance=race_distance, race_website=race_website, race_description=race_description)
 
@@ -16,6 +17,7 @@ def store_race(race_name, race_city, race_state, race_date, race_distance, race_
 
     return race
 
+# query the user for info about the race object to be created
 def get_race_info():
     done = False
 
@@ -29,14 +31,17 @@ def get_race_info():
 
         store_race(race_name, race_location, race_date, race_distance, race_website, race_description)
 
+# delete all the race reviews in the database
 def delete_race_reviews():
     Review.query.delete()
     db_session.commit()
 
+# delete all the races in the database
 def delete_all_races():
     Race.query.delete()
     db_session.commit()
 
+# adds the preset default races to the database
 def add_default_races():
     default_races = [
         ("Boston Marathon", "Boston", "MA", "4/17/24", "26.2", "https://www.baa.org/races/boston-marathon", "The Boston Marathon is an annual race that takes place in Boston, Massachusetts"),
@@ -51,10 +56,31 @@ def add_default_races():
 
     print("Default races have been added.")
 
+# initialize the database
 def initialize_database():
     init_db()
     print("Database has been initialized.")
 
+# edit the race (currently I've just implemented functionality to edit the race description)
+def edit_race():
+    race_id = input("Race id: ")
+
+    race = db_session.query(Race).filter(Race.id == race_id).first()
+
+    if not race:
+        print("Race not found!\n")
+        return
+
+    field_to_edit = input("What field do you want to edit (eg description): ")
+
+    if field_to_edit == "description":
+        race.race_description = input("Updated description: ")
+
+        db_session.commit()
+    else:
+        print("invalid field type!\n")
+
+# display a menu of functionality
 def menu():
     print("Please choose an option:")
     print("1. Initialize database")
@@ -62,10 +88,12 @@ def menu():
     print("3. Add all default races")
     print("4. Delete all reviews")
     print("5. Delete all races")
-    print("6. Quit")
+    print("6. Update a race")
+    print("7. Quit")
     choice = input("Enter the number of your choice: ")
     return int(choice)
 
+# run the function that corresponds to the menu selection
 if __name__ == "__main__":
     while True:
         choice = menu()
@@ -83,6 +111,8 @@ if __name__ == "__main__":
             delete_all_races()
             print("All races have been deleted.")
         elif choice == 6:
+            edit_race()
+        elif choice == 7:
             print("Exiting the program.")
             break
         else:

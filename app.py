@@ -38,7 +38,7 @@ def signup():
 
         # run checks against database
 
-        # flask incorrect password error if password incorrect
+        # flash incorrect password error if password incorrect
         if password != confirm_password:
             flash("Passwords do not match.", "error")
             return render_template("signup.html")
@@ -129,8 +129,8 @@ def calendar():
     for race in races:
         reviews = db_session.query(Review).filter(Review.race_id == race.id).all()
 
-        # if reviews exist for a race, do math
-        # otherwise don't do math
+        # if reviews exist for a race, calculate average rating
+        # otherwise don't calculate the average rating
         if len(reviews) > 0:
             average_rating = round(sum([review.rating for review in reviews])/len(reviews), 2)
         else:
@@ -162,14 +162,14 @@ def race_page(race_id):
     reviews = db_session.query(Review).filter(Review.race_id == race.id).all()
     comments = [review.review_text for review in reviews]
 
-    # more math if ratings for a race exist
+    # calculate the average race rating if there are ratings for a given race
     if len(reviews) > 0:
         average_rating = round(sum([review.rating for review in reviews])/len(reviews), 2)
     else:
         average_rating = "n/a"
 
     # render the race page with the calculated data
-    return render_template('race_page.html', race_id=race_id, race_name=race_name, average_rating=average_rating, comments=comments)
+    return render_template('race_page.html', race_id=race_id, race_name=race_name, average_rating=average_rating, comments=comments, race_description = race.race_description, race_website = race.race_website)
 
 @app.route('/race/<int:race_id>/submit_review', methods=["POST"])
 def submit_review(race_id):
