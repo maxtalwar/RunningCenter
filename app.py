@@ -168,7 +168,7 @@ def race_page(race_id):
     race_name = race.race_name
 
     text_reviews = (db_session.query(User, Review).filter(Review.race_id == race.id).join(User, Review.user_id == User.id).all())
-    comments = [f"{user.username}: {review.review_text}" for user, review in text_reviews]
+    reviews = {user.username:review.review_text for (user, review) in text_reviews}
 
     numerical_reviews = db_session.query(Review).filter(Review.race_id == race.id).all()
 
@@ -179,7 +179,7 @@ def race_page(race_id):
         average_rating = "n/a"
 
     # render the race page with the calculated data
-    return render_template('race_page.html', race_id=race_id, race_name=race_name, average_rating=average_rating, comments=comments, race_description = race.race_description, race_website = race.race_website)
+    return render_template('race_page.html', race_id=race_id, race_name=race_name, average_rating=average_rating, reviews=reviews, race_description = race.race_description, race_website = race.race_website)
 
 @app.route('/race/<int:race_id>/submit_review', methods=["POST"])
 def submit_review(race_id):
