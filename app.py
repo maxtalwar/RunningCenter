@@ -3,10 +3,11 @@ from database import init_db, db_session
 from models import *
 from datetime import datetime
 from sqlalchemy import func
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
-app.secret_key = "LInPyX4PpZx6hAHofg==" # TODO: not very secure, fix later
+app.config.from_object('config.Config')
 
 # redirects to the login page if no path is specified in the URL
 @app.route('/', methods=["GET", "POST"])
@@ -52,11 +53,14 @@ def signup():
             return render_template("signup.html")
         # if all checks are passed, create a new user and add it to the database session
         else:
+            password_hash = generate_password_hash(password)
+            password = password_hash
+
             user = User(username=username, email=email, password=password)
             db_session.add(user)
             db_session.commit()
 
-            session["username"] = username # TODO: consider getting rid of this as a security thing in order to make users login after signup
+            flash("Sucessfully signed up!", "info")
 
             # redirect users to the login page
             return redirect(url_for("login"))
@@ -77,13 +81,13 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
 
-        # pull correct user password from database
-        correct_user_password = db_session.query(User.password).filter(User.username == username).first()
+        # pull the corresponding user from the username
+        user = db_session.query(User).filter(User.username == username).first()
 
-        # check that the user entered a username in the database (and therefore that the correct corresponding password != None)
-        if correct_user_password != None:
+        # check that the user entered a username in the database
+        if user != None:
             # check that the given password is correct
-            if password == correct_user_password[0]:
+            if check_password_hash(user.password, password):
                 # log the user in, redirect to the profile page
                 session["username"] = username
 
@@ -174,7 +178,7 @@ def race_page(race_id):
 
     # calculate the average race rating if there are ratings for a given race
     if len(numerical_reviews) > 0:
-        average_rating = round(sum([review.rating for review in numerical_reviews])/len(numerical_reviews), 2)
+        average_rating = round(sum([review.rating for review in numerical_reviews])/len(numerical_reviews), 1)
     else:
         average_rating = "n/a"
 

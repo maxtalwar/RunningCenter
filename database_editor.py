@@ -80,6 +80,11 @@ def edit_race():
     else:
         print("invalid field type!\n")
 
+# delete all the users in the database
+def delete_all_users():
+    User.query.delete()
+    db_session.commit()
+
 # display a menu of functionality
 def menu():
     print("Please choose an option:")
@@ -88,10 +93,12 @@ def menu():
     print("3. Add all default races")
     print("4. Delete all reviews")
     print("5. Delete all races")
-    print("6. Update a race")
-    print("7. Quit")
+    print("6. Delete all users") # Add this line
+    print("7. Update a race")
+    print("8. Quit") # Update the quit number
     choice = input("Enter the number of your choice: ")
     return int(choice)
+
 
 # run the function that corresponds to the menu selection
 if __name__ == "__main__":
@@ -110,10 +117,14 @@ if __name__ == "__main__":
         elif choice == 5:
             delete_all_races()
             print("All races have been deleted.")
-        elif choice == 6:
-            edit_race()
+        elif choice == 6: # Update this condition
+            delete_all_users()
+            print("All users have been deleted.")
         elif choice == 7:
+            edit_race()
+        elif choice == 8: # Update the quit number
             print("Exiting the program.")
             break
         else:
             print("Invalid choice. Please try again.")
+
