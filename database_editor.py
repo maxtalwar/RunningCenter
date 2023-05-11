@@ -82,8 +82,10 @@ def edit_race():
 
 # delete all the users in the database
 def delete_all_users():
-    User.query.delete()
-    db_session.commit()
+    confirm = input("Are you sure? [Y/n]")
+    if confirm == "Y":
+        User.query.delete()
+        db_session.commit()
 
 # display a menu of functionality
 def menu():
