@@ -8,7 +8,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 
 app.config.from_object('config.Config')
-app.secret_key = "2Ht0UE59ux4IpK5L2lJX3PR0HJI="
 
 # redirects to the login page if no path is specified in the URL
 @app.route('/', methods=["GET", "POST"])
@@ -107,6 +106,8 @@ def profile(username):
 
     if "username" in session:
         logged_in_user = session["username"]
+
+    print(logged_in_user)
 
     # use the logged in user's username if the user doesn't specify a username in the url
     # redirect them to the login page if they're not logged in (meaning there is no session username)
