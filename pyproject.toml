@@ -6,7 +6,7 @@ authors = ["0xphoton <42502920+maxtalwar@users.noreply.github.com>"]
 
 [tool.poetry.dependencies]
 python = ">=3.8"
-flask = "^2.3.2"
+flask = "^2.1.2"
 sqlalchemy = "^2.0.12"
 requests = "^2.30.0"
 werkzeug = "^2.3.4"

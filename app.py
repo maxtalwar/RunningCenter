@@ -8,6 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 
 app.config.from_object('config.Config')
+app.secret_key = "2Ht0UE59ux4IpK5L2lJX3PR0HJI=
 
 # redirects to the login page if no path is specified in the URL
 @app.route('/', methods=["GET", "POST"])
@@ -60,10 +61,12 @@ def signup():
             db_session.add(user)
             db_session.commit()
 
-            flash("Sucessfully signed up!", "info")
+            #flash("Sucessfully signed up!", "info")
+            
+            session["username"] = username
 
-            # redirect users to the login page
-            return redirect(url_for("login"))
+            # redirect users to the profile page
+            return redirect(url_for("profile"))
 
 # logic for login page
 @app.route('/login', methods=["GET", "POST"])
@@ -92,7 +95,7 @@ def login():
                 session["username"] = username
 
                 return redirect(url_for("profile"))
-    
+
     # if it ultimately fails to pass the checks throw an error and redirect back to the login page
     flash("Incorrect username or password.", "error")
     return render_template("login.html")
@@ -104,15 +107,15 @@ def profile(username):
 
     if "username" in session:
         logged_in_user = session["username"]
-    
+
     # use the logged in user's username if the user doesn't specify a username in the url
     # redirect them to the login page if they're not logged in (meaning there is no session username)
     if not username:
         if logged_in_user == None:
             return redirect(url_for("login"))
-            
+
         username = logged_in_user
-    
+
     # get the current username, generate a user object from the given username
     user = db_session.query(User).filter(User.username == username).first()
 
@@ -137,7 +140,7 @@ def profile(username):
 def calendar():
     # get all upcoming races
     races = db_session.query(Race).all()
-    
+
     # calculate the average rating for each of the upcoming races, update each race object with their average rating
     for race in races:
         reviews = db_session.query(Review).filter(Review.race_id == race.id).all()
@@ -153,7 +156,7 @@ def calendar():
 
     # pass the updated race objects to the calendar page
     return render_template("calendar.html", races=races)
-        
+
 @app.route("/logout")
 def logout():
     # checks if a user is logged in
@@ -234,4 +237,4 @@ def save_profile_changes():
 
 if __name__ == "__main__":
     init_db()
-    app.run(debug=True)
+    app.run(port=5001)
