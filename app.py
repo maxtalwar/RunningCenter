@@ -8,7 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 
 app.config.from_object('config.Config')
-app.secret_key = "2Ht0UE59ux4IpK5L2lJX3PR0HJI=
+app.secret_key = "2Ht0UE59ux4IpK5L2lJX3PR0HJI="
 
 # redirects to the login page if no path is specified in the URL
 @app.route('/', methods=["GET", "POST"])
