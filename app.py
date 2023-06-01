@@ -9,8 +9,6 @@ app = Flask(__name__)
 
 app.config.from_object('config.Config')
 
-app.secret_key = "zDXYjsiNwkAMdNvf9FnVyILMnhc="
-
 # redirects to the login page if no path is specified in the URL
 @app.route('/', methods=["GET", "POST"])
 def home():
